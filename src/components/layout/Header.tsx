@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,9 +14,11 @@ import {
 
 interface HeaderProps {
   title: string;
+  onToggleSidebar?: () => void;
+  isSidebarCollapsed?: boolean;
 }
 
-const Header = ({ title }: HeaderProps) => {
+const Header = ({ title, onToggleSidebar, isSidebarCollapsed }: HeaderProps) => {
   const [notifications, setNotifications] = useState([
     { id: 1, message: "New candidate applied for Frontend Developer" },
     { id: 2, message: "Interview scheduled with John Doe" },
@@ -23,9 +26,24 @@ const Header = ({ title }: HeaderProps) => {
   ]);
   
   return (
-    <header className="bg-white border-b border-gray-200 py-4 px-6 flex items-center justify-between">
-      <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
-      
+    <header className="bg-white border-b border-gray-200 py-4 px-6 flex items-center">
+      <div className="flex items-center space-x-4">
+        {/* Sidebar Toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleSidebar}
+          className="flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+          title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isSidebarCollapsed ? <PanelLeft size={20} /> : <PanelLeftClose size={20} />}
+        </Button>
+
+        <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
+      </div>
+
+      <div className="flex-1" />
+
       <div className="flex items-center space-x-4">
         {/* Search */}
         <div className="hidden md:flex items-center relative">
@@ -37,6 +55,9 @@ const Header = ({ title }: HeaderProps) => {
           />
         </div>
         
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

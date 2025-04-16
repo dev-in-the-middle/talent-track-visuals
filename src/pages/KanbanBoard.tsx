@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Types for our data
 interface Candidate {
@@ -271,9 +272,9 @@ const KanbanBoard = () => {
 
   return (
     <MainLayout title="Kanban Board">
-      <div className="space-y-6">
-        {/* Header actions */}
-        <div className="flex flex-wrap gap-4 items-center justify-between">
+      <div className="flex flex-col h-full relative">
+        {/* Header actions - fixed */}
+        <div className="sticky top-0 z-10 bg-gray-50 flex flex-wrap gap-4 items-center justify-between py-4 px-2 border-b border-gray-200">
           <div className="flex flex-wrap gap-2 items-center">
             <div className="relative w-64">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -314,101 +315,105 @@ const KanbanBoard = () => {
           </div>
         </div>
 
-        {/* Kanban board */}
-        <div className="flex gap-6 overflow-x-auto pb-6">
-          {columns.map(column => (
-            <div
-              key={column.id}
-              className="w-80 flex-shrink-0"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, column.id)}
-            >
-              <Card className="h-full">
-                <CardHeader className={`${column.color} rounded-t-lg px-4 py-3`}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-base font-medium flex items-center">
-                        {column.title}
-                        <Badge variant="outline" className="ml-2 bg-white">
-                          {column.count}
-                        </Badge>
-                      </CardTitle>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-2">
-                  <div className="space-y-2">
-                    {column.candidates.map(candidate => (
-                      <div
-                        key={candidate.id}
-                        className={`bg-white rounded-md shadow p-3 cursor-grab 
-                                   ${selectedCandidates.includes(candidate.id) ? 'ring-2 ring-primary' : 'hover:shadow-md'}`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, candidate.id, column.id)}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Checkbox 
-                              checked={selectedCandidates.includes(candidate.id)} 
-                              onCheckedChange={() => handleSelect(candidate.id)}
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                            <Avatar className="h-8 w-8">
-                              <div className="bg-purple-500 h-8 w-8 rounded-full flex items-center justify-center text-white font-medium">
-                                {candidate.name.charAt(0)}
-                              </div>
-                            </Avatar>
-                          </div>
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <MoreHorizontal className="h-3 w-3" />
+        {/* Kanban board - scrollable */}
+        <div className="flex-1 min-h-0 mt-4">
+          <ScrollArea className="h-full">
+            <div className="flex gap-6 min-w-max pb-6">
+              {columns.map(column => (
+                <div
+                  key={column.id}
+                  className="w-80 flex-shrink-0"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, column.id)}
+                >
+                  <Card className="h-full">
+                    <CardHeader className={`${column.color} rounded-t-lg px-4 py-3`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-base font-medium flex items-center">
+                            {column.title}
+                            <Badge variant="outline" className="ml-2 bg-white">
+                              {column.count}
+                            </Badge>
+                          </CardTitle>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </div>
-                        
-                        <h3 className="font-medium">{candidate.name}</h3>
-                        <p className="text-sm text-gray-500">{candidate.position}</p>
-                        
-                        <div className="flex gap-1 mt-2">
-                          {candidate.tags.map(tag => (
-                            <Badge key={tag} variant="outline" className="bg-gray-100 text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500">
-                          <div className="flex items-center">
-                            {/* Star rating */}
-                            <div className="flex">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <span key={i} className={i < candidate.rating ? "text-yellow-400" : "text-gray-300"}>
-                                  ★
-                                </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-2">
+                      <div className="space-y-2">
+                        {column.candidates.map(candidate => (
+                          <div
+                            key={candidate.id}
+                            className={`bg-white rounded-md shadow p-3 cursor-grab 
+                                       ${selectedCandidates.includes(candidate.id) ? 'ring-2 ring-primary' : 'hover:shadow-md'}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, candidate.id, column.id)}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <Checkbox 
+                                  checked={selectedCandidates.includes(candidate.id)} 
+                                  onCheckedChange={() => handleSelect(candidate.id)}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <Avatar className="h-8 w-8">
+                                  <div className="bg-purple-500 h-8 w-8 rounded-full flex items-center justify-center text-white font-medium">
+                                    {candidate.name.charAt(0)}
+                                  </div>
+                                </Avatar>
+                              </div>
+                              <Button variant="ghost" size="icon" className="h-6 w-6">
+                                <MoreHorizontal className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            
+                            <h3 className="font-medium">{candidate.name}</h3>
+                            <p className="text-sm text-gray-500">{candidate.position}</p>
+                            
+                            <div className="flex gap-1 mt-2">
+                              {candidate.tags.map(tag => (
+                                <Badge key={tag} variant="outline" className="bg-gray-100 text-xs">
+                                  {tag}
+                                </Badge>
                               ))}
                             </div>
+                            
+                            <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 text-xs text-gray-500">
+                              <div className="flex items-center">
+                                {/* Star rating */}
+                                <div className="flex">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <span key={i} className={i < candidate.rating ? "text-yellow-400" : "text-gray-300"}>
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                              <span>Added: {new Date(candidate.date).toLocaleDateString()}</span>
+                            </div>
                           </div>
-                          <span>Added: {new Date(candidate.date).toLocaleDateString()}</span>
-                        </div>
+                        ))}
+                        
+                        {column.candidates.length === 0 && (
+                          <div className="flex flex-col items-center justify-center h-24 border border-dashed rounded-md bg-gray-50">
+                            <p className="text-sm text-gray-500">Drop candidates here</p>
+                          </div>
+                        )}
                       </div>
-                    ))}
-                    
-                    {column.candidates.length === 0 && (
-                      <div className="flex flex-col items-center justify-center h-24 border border-dashed rounded-md bg-gray-50">
-                        <p className="text-sm text-gray-500">Drop candidates here</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
             </div>
-          ))}
+          </ScrollArea>
         </div>
       </div>
     </MainLayout>

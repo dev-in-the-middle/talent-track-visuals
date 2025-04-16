@@ -9,35 +9,42 @@ import {
   Settings,
   LogOut,
   Menu,
-  LayoutKanban
+  Kanban
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+interface SidebarProps {
+  isCollapsed?: boolean;
+}
 
 interface SidebarLinkProps {
   to: string;
   icon: React.ReactNode;
   label: string;
   active: boolean;
+  isCollapsed?: boolean;
 }
 
-const SidebarLink = ({ to, icon, label, active }: SidebarLinkProps) => (
+const SidebarLink = ({ to, icon, label, active, isCollapsed }: SidebarLinkProps) => (
   <Link to={to} className="w-full">
     <Button
       variant="ghost"
       className={cn(
-        "w-full justify-start gap-3 font-normal",
+        "w-full font-normal",
+        isCollapsed ? "justify-center" : "justify-start gap-3",
         active ? "bg-purple-100 text-purple-800" : "hover:bg-purple-50 text-gray-600"
       )}
+      title={isCollapsed ? label : undefined}
     >
       {icon}
-      <span>{label}</span>
+      {!isCollapsed && <span>{label}</span>}
     </Button>
   </Link>
 );
 
-const Sidebar = () => {
+const Sidebar = ({ isCollapsed = false }: SidebarProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -49,7 +56,7 @@ const Sidebar = () => {
   const links = [
     { to: "/", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     { to: "/candidates", icon: <Users size={20} />, label: "Candidates" },
-    { to: "/kanban", icon: <LayoutKanban size={20} />, label: "Kanban Board" },
+    { to: "/kanban", icon: <Kanban size={20} />, label: "Kanban Board" },
     { to: "/resumes", icon: <FileText size={20} />, label: "Resumes & CVs" },
     { to: "/reports", icon: <PieChart size={20} />, label: "Reports" },
     { to: "/settings", icon: <Settings size={20} />, label: "Settings" },
@@ -72,22 +79,22 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "bg-white border-r border-gray-200 p-4 flex flex-col h-screen transition-all duration-300",
+          "bg-white border-r border-gray-200 p-2 flex flex-col h-screen transition-all duration-300",
           isMobile ? 
-            (isOpen ? "fixed left-0 top-0 w-64 z-40" : "fixed -left-64 top-0 w-64 z-40") :
-            "w-64"
+            (isOpen ? "fixed left-0 top-0 w-56 z-40" : "fixed -left-56 top-0 w-56 z-40") :
+            isCollapsed ? "w-16" : "w-56"
         )}
       >
         {/* Logo */}
-        <div className="flex items-center mb-8 px-2 py-4">
-          <div className="h-8 w-8 bg-purple-600 rounded-md flex items-center justify-center">
-            <span className="text-white font-bold text-lg">T</span>
+        <div className={cn("flex items-center mb-4 px-2 py-2", isCollapsed ? "justify-center" : "")}>
+          <div className="h-7 w-7 bg-purple-600 rounded-md flex items-center justify-center">
+            <span className="text-white font-bold text-base">T</span>
           </div>
-          <span className="ml-2 text-xl font-bold text-navy">TalentTrack</span>
+          {!isCollapsed && <span className="ml-2 text-xl font-bold text-navy">TalentTrack</span>}
         </div>
 
         {/* Navigation links */}
-        <nav className="space-y-1 flex-1">
+        <nav className="space-y-1 flex-1 overflow-y-auto">
           {links.map((link) => (
             <SidebarLink
               key={link.to}
@@ -95,17 +102,21 @@ const Sidebar = () => {
               icon={link.icon}
               label={link.label}
               active={location.pathname === link.to}
+              isCollapsed={isCollapsed}
             />
           ))}
-        </nav>
-
-        {/* Bottom section */}
-        <div className="pt-4 border-t border-gray-200">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-gray-600">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full font-normal mt-4",
+              isCollapsed ? "justify-center" : "justify-start gap-3",
+              "text-gray-600 hover:bg-purple-50"
+            )}
+          >
             <LogOut size={20} />
-            <span>Logout</span>
+            {!isCollapsed && <span>Logout</span>}
           </Button>
-        </div>
+        </nav>
       </aside>
       
       {/* Backdrop for mobile */}
