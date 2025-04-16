@@ -9,7 +9,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  Kanban
+  Kanban,
+  BriefcaseBusiness
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -57,6 +58,7 @@ const Sidebar = ({ isCollapsed = false }: SidebarProps) => {
     { to: "/", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     { to: "/candidates", icon: <Users size={20} />, label: "Candidates" },
     { to: "/kanban", icon: <Kanban size={20} />, label: "Kanban Board" },
+    { to: "/jobs", icon: <BriefcaseBusiness size={20} />, label: "Job Listings" },
     { to: "/resumes", icon: <FileText size={20} />, label: "Resumes & CVs" },
     { to: "/reports", icon: <PieChart size={20} />, label: "Reports" },
     { to: "/settings", icon: <Settings size={20} />, label: "Settings" },
