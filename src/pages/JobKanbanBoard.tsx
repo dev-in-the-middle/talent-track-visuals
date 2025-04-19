@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface Candidate {
   id: string;
@@ -29,76 +36,96 @@ interface KanbanColumn {
   candidates: Candidate[];
 }
 
+interface JobListing {
+  id: string;
+  title: string;
+  department: string;
+  columns?: KanbanColumn[];
+}
+
 const JobKanbanBoard = () => {
   const { jobId } = useParams();
-
-  // Default columns for job-specific kanban board
-  const [columns, setColumns] = useState<KanbanColumn[]>([
+  const navigate = useNavigate();
+  
+  const [jobListings] = useState<JobListing[]>([
     {
-      id: 'new',
-      title: 'New Applications',
-      color: 'bg-gray-200',
-      count: 0,
-      candidates: []
+      id: '1',
+      title: 'Senior Frontend Developer',
+      department: 'Engineering',
+      columns: [
+        {
+          id: 'new',
+          title: 'New Applications',
+          color: 'bg-gray-200',
+          count: 2,
+          candidates: [
+            {
+              id: 'c1',
+              name: 'John Doe',
+              position: 'Frontend Developer',
+              rating: 4,
+              tags: ['React', 'TypeScript'],
+              date: '2024-04-19',
+              status: 'new'
+            }
+          ]
+        },
+        {
+          id: 'technical',
+          title: 'Technical Assessment',
+          color: 'bg-blue-200',
+          count: 1,
+          candidates: []
+        }
+      ]
     },
     {
-      id: 'screening',
-      title: 'Initial Screening',
-      color: 'bg-blue-200',
-      count: 0,
-      candidates: []
-    },
-    {
-      id: 'interview',
-      title: 'Interview',
-      color: 'bg-purple-200',
-      count: 0,
-      candidates: []
-    },
-    {
-      id: 'technical',
-      title: 'Technical Assessment',
-      color: 'bg-indigo-200',
-      count: 0,
-      candidates: []
-    },
-    {
-      id: 'offer',
-      title: 'Offer Stage',
-      color: 'bg-yellow-200',
-      count: 0,
-      candidates: []
-    },
-    {
-      id: 'hired',
-      title: 'Hired',
-      color: 'bg-green-200',
-      count: 0,
-      candidates: []
-    },
-    {
-      id: 'rejected',
-      title: 'Rejected',
-      color: 'bg-red-200',
-      count: 0,
-      candidates: []
+      id: '2',
+      title: 'Product Manager',
+      department: 'Product',
+      columns: [
+        {
+          id: 'new',
+          title: 'New Applications',
+          color: 'bg-gray-200',
+          count: 0,
+          candidates: []
+        },
+        {
+          id: 'interview',
+          title: 'Interview',
+          color: 'bg-purple-200',
+          count: 0,
+          candidates: []
+        }
+      ]
     }
   ]);
 
+  const handleJobChange = (selectedJobId: string) => {
+    navigate(`/jobs/${selectedJobId}/kanban`);
+  };
+
+  const currentJob = jobListings.find(job => job.id === jobId) || jobListings[0];
+  const [columns, setColumns] = useState(currentJob?.columns || []);
+
+  useEffect(() => {
+    if (currentJob?.columns) {
+      setColumns(currentJob.columns);
+    }
+  }, [currentJob]);
+
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
 
-  // Handle drag start
   const handleDragStart = (e: React.DragEvent, candidateId: string, sourceColumnId: string) => {
     e.dataTransfer.setData("candidateId", candidateId);
     e.dataTransfer.setData("sourceColumnId", sourceColumnId);
   };
 
-  // Handle drag over
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
-  // Handle drop
   const handleDrop = (e: React.DragEvent, targetColumnId: string) => {
     e.preventDefault();
     const candidateId = e.dataTransfer.getData("candidateId");
@@ -139,7 +166,6 @@ const JobKanbanBoard = () => {
     }
   };
 
-  // Handle checkbox selection
   const handleSelect = (candidateId: string) => {
     setSelectedCandidates(prev => {
       if (prev.includes(candidateId)) {
@@ -150,7 +176,6 @@ const JobKanbanBoard = () => {
     });
   };
 
-  // Move selected candidates to a target column
   const moveSelectedCandidates = (targetColumnId: string) => {
     if (selectedCandidates.length === 0) return;
 
@@ -194,11 +219,23 @@ const JobKanbanBoard = () => {
   };
 
   return (
-    <MainLayout title={`Job Pipeline - ${jobId}`}>
+    <MainLayout title={`Job Pipeline - ${currentJob?.title}`}>
       <div className="flex flex-col h-full relative">
-        {/* Header actions */}
         <div className="sticky top-0 z-10 bg-gray-50 flex flex-wrap gap-4 items-center justify-between py-4 px-2 border-b border-gray-200">
-          <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex flex-wrap gap-4 items-center">
+            <Select value={jobId || jobListings[0].id} onValueChange={handleJobChange}>
+              <SelectTrigger className="w-[280px]">
+                <SelectValue placeholder="Select job listing" />
+              </SelectTrigger>
+              <SelectContent>
+                {jobListings.map(job => (
+                  <SelectItem key={job.id} value={job.id}>
+                    {job.title} - {job.department}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
             <div className="relative w-64">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
               <Input
@@ -238,7 +275,6 @@ const JobKanbanBoard = () => {
           </div>
         </div>
 
-        {/* Kanban board */}
         <div className="flex-1 min-h-0 mt-4">
           <ScrollArea className="h-full">
             <div className="flex gap-6 min-w-max pb-6">

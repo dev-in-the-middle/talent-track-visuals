@@ -1,16 +1,12 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
   FileText, 
+  Settings, 
   PieChart,
-  Settings,
-  LogOut,
-  Menu,
-  Kanban,
-  BriefcaseBusiness
+  KanbanSquare 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -57,7 +53,7 @@ const Sidebar = ({ isCollapsed = false }: SidebarProps) => {
   const links = [
     { to: "/", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     { to: "/candidates", icon: <Users size={20} />, label: "Candidates" },
-    { to: "/kanban", icon: <Kanban size={20} />, label: "Kanban Board" },
+    { to: "/kanban", icon: <KanbanSquare size={20} />, label: "Kanban Board" },
     { to: "/jobs", icon: <BriefcaseBusiness size={20} />, label: "Job Listings" },
     { to: "/resumes", icon: <FileText size={20} />, label: "Resumes & CVs" },
     { to: "/reports", icon: <PieChart size={20} />, label: "Reports" },
